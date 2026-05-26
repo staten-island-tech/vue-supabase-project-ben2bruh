@@ -1,15 +1,12 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
+// nuxt.config.ts
 export default defineNuxtConfig({
-  runtimeConfig: {
-    public: {
-      supabaseUrl: process.env.SUPABASE_URL,
-      supabaseKey: process.env.SUPABASE_KEY,
+  modules: ["@pinia/nuxt", "@nuxtjs/supabase"],
+  ssr: false,
+  supabase: {
+    redirectOptions: {
+      login: "/login",
+      callback: "/confirm",
+      exclude: ["/"],
     },
   },
-
-  compatibilityDate: '2025-07-15',
-  devtools: { enabled: true },
-  modules: ['@pinia/nuxt', '@nuxtjs/tailwindcss']
-  
-})
-
+});
