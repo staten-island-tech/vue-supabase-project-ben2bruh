@@ -1,5 +1,5 @@
 {
-  "name": "nuxt-app",
+  "name": "app",
   "type": "module",
   "private": true,
   "scripts": {
@@ -10,12 +10,13 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@nuxtjs/supabase": "^2.0.9",
     "@nuxtjs/tailwindcss": "^6.14.0",
     "@pinia/nuxt": "^0.11.3",
     "@supabase/supabase-js": "^2.106.2",
-    "nuxt": "^4.4.2",
+    "nuxt": "^4.4.6",
     "pinia": "^3.0.4",
-    "vue": "^3.5.33",
-    "vue-router": "^5.0.6"
+    "vue": "^3.5.34",
+    "vue-router": "^5.0.7"
   }
 }
