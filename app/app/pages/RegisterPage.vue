@@ -10,7 +10,7 @@
     <div class="grass">
       <div class="grass-lines"></div>
       <div class="panel">
-        <h2 class="panel-title">Login</h2>
+        <h2 class="panel-title">Register</h2>
 
         <div class="field">
           <label class="field-label">Username or Email</label>
@@ -36,9 +36,15 @@
         <p v-if="errorMsg" class="error-msg">{{ errorMsg }}</p>
 
         <div class="btn-row">
-          <button class="poke-btn btn-back" @click="router.push('HomePage')">Back</button>
-          <button class="poke-btn btn-login" :disabled="loading" @click="login">
-            {{ loading ? 'Loading...' : 'Login' }}
+          <button class="poke-btn btn-back" @click="router.push('HomePage')">
+            Back
+          </button>
+          <button
+            class="poke-btn btn-login"
+            :disabled="loading"
+            @click="register"
+          >
+            {{ loading ? "Loading..." : "Register" }}
           </button>
         </div>
       </div>
@@ -47,49 +53,49 @@
     <div class="ground-bar"></div>
 
     <div class="footer-bar">
-      <p class="footer-text">Log in or create an account to start. No email required!</p>
+      <p class="footer-text">Please Register An Account And Login To Play!</p>
     </div>
     <div class="footer-bar-bottom"></div>
   </div>
 </template>
 
 <script setup lang="ts">
-const supabase = useSupabaseClient()
-const router = useRouter()
+const supabase = useSupabaseClient();
+const router = useRouter();
 
-const email = ref<string>('')
-const password = ref<string>('')
-const errorMsg = ref<string>('')
-const loading = ref<boolean>(false)
+const email = ref<string>("");
+const password = ref<string>("");
+const errorMsg = ref<string>("");
+const loading = ref<boolean>(false);
 
-const login = async (): Promise<void> => {
-  errorMsg.value = ''
-  loading.value = true
+const register = async (): Promise<void> => {
+  errorMsg.value = "";
+  loading.value = true;
 
-  const { error } = await supabase.auth.signInWithPassword({
+  const { error } = await supabase.auth.signUp({
     email: email.value,
-    password: password.value
-  })
+    password: password.value,
+  });
 
-  loading.value = false
+  loading.value = false;
 
   if (error) {
-    errorMsg.value = error.message
+    errorMsg.value = error.message;
   } else {
-    router.push('/game') 
+    router.push("/LoginPage");
   }
-}
+};
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap");
 
 .scene {
   width: 100%;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  font-family: 'Fredoka One', cursive;
+  font-family: "Fredoka One", cursive;
   overflow: hidden;
 }
 .sky {
@@ -105,12 +111,17 @@ const login = async (): Promise<void> => {
   inset: 0;
   background: repeating-linear-gradient(
     180deg,
-    transparent 0px, transparent 7px,
-    rgba(255,255,255,0.12) 7px, rgba(255,255,255,0.12) 8px
+    transparent 0px,
+    transparent 7px,
+    rgba(255, 255, 255, 0.12) 7px,
+    rgba(255, 255, 255, 0.12) 8px
   );
   pointer-events: none;
 }
-.logo { position: relative; z-index: 2; }
+.logo {
+  position: relative;
+  z-index: 2;
+}
 .logo-text {
   font-size: clamp(28px, 5vw, 48px);
   color: #c0392b;
@@ -135,8 +146,10 @@ const login = async (): Promise<void> => {
   inset: 0;
   background: repeating-linear-gradient(
     180deg,
-    transparent 0px, transparent 5px,
-    rgba(0,0,0,0.08) 5px, rgba(0,0,0,0.08) 6px
+    transparent 0px,
+    transparent 5px,
+    rgba(0, 0, 0, 0.08) 5px,
+    rgba(0, 0, 0, 0.08) 6px
   );
   pointer-events: none;
 }
@@ -154,7 +167,7 @@ const login = async (): Promise<void> => {
   gap: 1rem;
 }
 .panel::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 3px;
   border: 2px solid #8b1a11;
@@ -167,7 +180,11 @@ const login = async (): Promise<void> => {
   margin: 0;
   letter-spacing: 1px;
 }
-.field { display: flex; flex-direction: column; gap: 4px; }
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
 .field-label {
   color: #7ec8e3;
   font-size: 14px;
@@ -177,15 +194,19 @@ const login = async (): Promise<void> => {
   background: #0a0a1a;
   border: 2px solid #3a3a6e;
   color: #e0e0ff;
-  font-family: 'Fredoka One', cursive;
+  font-family: "Fredoka One", cursive;
   font-size: 18px;
   padding: 8px 12px;
   outline: none;
   transition: border-color 0.1s;
   caret-color: #e63946;
 }
-.poke-input:focus { border-color: #e63946; }
-.poke-input::placeholder { color: #3a3a6e; }
+.poke-input:focus {
+  border-color: #e63946;
+}
+.poke-input::placeholder {
+  color: #3a3a6e;
+}
 .error-msg {
   color: #e63946;
   font-size: 13px;
@@ -199,24 +220,41 @@ const login = async (): Promise<void> => {
 }
 .poke-btn {
   flex: 1;
-  font-family: 'Fredoka One', cursive;
+  font-family: "Fredoka One", cursive;
   font-size: 20px;
   padding: 10px;
   border: 3px solid #c0392b;
   box-shadow: 0 4px 0 #8b1a11;
   cursor: pointer;
   letter-spacing: 1px;
-  transition: transform 0.08s, box-shadow 0.08s;
+  transition:
+    transform 0.08s,
+    box-shadow 0.08s;
 }
 .poke-btn:active {
   transform: translateY(3px);
   box-shadow: 0 1px 0 #8b1a11;
 }
-.poke-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-.btn-login { background: #2a1a0e; color: #f0e6c8; }
-.btn-login:hover:not(:disabled) { background: #3a2510; border-color: #e74c3c; }
-.btn-back { background: #1a1a2e; color: #7ec8e3; border-color: #3a3a6e; }
-.btn-back:hover { border-color: #7ec8e3; }
+.poke-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.btn-login {
+  background: #2a1a0e;
+  color: #f0e6c8;
+}
+.btn-login:hover:not(:disabled) {
+  background: #3a2510;
+  border-color: #e74c3c;
+}
+.btn-back {
+  background: #1a1a2e;
+  color: #7ec8e3;
+  border-color: #3a3a6e;
+}
+.btn-back:hover {
+  border-color: #7ec8e3;
+}
 .ground-bar {
   height: 18px;
   background: #8b1a11;
@@ -224,9 +262,11 @@ const login = async (): Promise<void> => {
   position: relative;
 }
 .ground-bar::after {
-  content: '';
+  content: "";
   position: absolute;
-  bottom: 0; left: 0; right: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
   height: 4px;
   background: #5a0e0e;
 }

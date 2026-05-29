@@ -8,7 +8,6 @@
       </div>
     </div>
 
-    <!-- Grass -->
     <div class="grass">
       <div class="grass-lines"></div>
       <div class="panel">
@@ -19,7 +18,7 @@
 
     <div class="ground-bar"></div>
 
-    <!-- Footer -->
+  
     <div class="footer-bar">
       <p class="footer-text">Log in or create an account to start. No email required!</p>
     </div>

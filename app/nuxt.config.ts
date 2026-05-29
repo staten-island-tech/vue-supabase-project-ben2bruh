@@ -7,5 +7,10 @@ export default defineNuxtConfig({
   },
   supabase: {
     types: "../types/database.types.ts",
+    redirectOptions: {
+      login: "/LoginPage",
+      callback: "/confirm",
+      exclude: ["/HomePage", "/RegisterPage"],
+    },
   },
 });
