@@ -6,7 +6,6 @@
         <span class="logo-text">PokéRoGue</span>
       </div>
     </div>
-
     <div class="grass">
       <div class="grass-lines"></div>
       <div class="panel">
@@ -17,9 +16,7 @@
 
     <div class="ground-bar"></div>
 
-    <div class="footer-bar">
-      <p class="footer-text">Log in or create an account to start.</p>
-    </div>
+    <div class="footer-bar"></div>
     <div class="footer-bar-bottom"></div>
   </div>
 </template>
