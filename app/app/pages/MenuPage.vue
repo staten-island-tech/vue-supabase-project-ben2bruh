@@ -8,10 +8,10 @@
     </div>
     <div class="grass">
       <div class="grass-lines"></div>
-      <div class="panel">
-        <button class="poke-btn" @click="goToLogin">Start Run</button>
-        <button class="poke-btn" @click="goToRegister">Load Run</button>
-        <button class="poke-btn" @click="goToRegister"></button>
+      <div class="panel -bottom-48 -right-48">
+        <button class="poke-btn" @click="goToStart">Start Run</button>
+        <button class="poke-btn" @click="null">Load Run</button>
+        <button class="poke-btn" @click="null"></button>
       </div>
     </div>
 
@@ -25,12 +25,8 @@
 <script setup lang="ts">
 const router = useRouter();
 
-const goToLogin = (): void => {
-  router.push("/LoginPage");
-};
-
-const goToRegister = (): void => {
-  router.push("/RegisterPage");
+const goToStart = (): void => {
+  router.push("/StartPage");
 };
 </script>
 
