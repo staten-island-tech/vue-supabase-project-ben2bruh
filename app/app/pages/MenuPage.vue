@@ -9,8 +9,9 @@
     <div class="grass">
       <div class="grass-lines"></div>
       <div class="panel">
-        <button class="poke-btn" @click="goToLogin">Login</button>
-        <button class="poke-btn" @click="goToRegister">Register</button>
+        <button class="poke-btn" @click="goToLogin">Start Run</button>
+        <button class="poke-btn" @click="goToRegister">Load Run</button>
+        <button class="poke-btn" @click="goToRegister"></button>
       </div>
     </div>
 
