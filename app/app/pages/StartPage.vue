@@ -2,7 +2,6 @@
   <div class="scene">
     <div class="sky">
       <div class="sky-lines"></div>
-
       <div class="logo">
         <span class="logo-text">PokéRoGue</span>
       </div>
@@ -14,45 +13,15 @@
       <div class="panel">
         <div class="left-column">
           <div v-if="confirmedPokemon" class="preview-content">
-            <img
-              :src="confirmedPokemon.sprite_url"
-              class="preview-sprite"
-            />
-
-            <h2 class="poke-name">
-              {{ confirmedPokemon.name }}
-            </h2>
-
+            <img :src="confirmedPokemon.sprite_url" class="preview-sprite" />
+            <h2 class="poke-name">{{ confirmedPokemon.name }}</h2>
             <div class="stats-box">
-              <div class="stat-row">
-                <span>HP</span>
-                <span>{{ confirmedPokemon.base_stats.hp }}</span>
-              </div>
-
-              <div class="stat-row">
-                <span>ATK</span>
-                <span>{{ confirmedPokemon.base_stats.attack }}</span>
-              </div>
-
-              <div class="stat-row">
-                <span>DEF</span>
-                <span>{{ confirmedPokemon.base_stats.defense }}</span>
-              </div>
-
-              <div class="stat-row">
-                <span>SPATK</span>
-                <span>{{ confirmedPokemon.base_stats.sp_atk }}</span>
-              </div>
-
-              <div class="stat-row">
-                <span>SPDEF</span>
-                <span>{{ confirmedPokemon.base_stats.sp_def }}</span>
-              </div>
-
-              <div class="stat-row">
-                <span>SPEED</span>
-                <span>{{ confirmedPokemon.base_stats.speed }}</span>
-              </div>
+              <div class="stat-row"><span>HP</span><span>{{ confirmedPokemon.base_stats.hp }}</span></div>
+              <div class="stat-row"><span>ATK</span><span>{{ confirmedPokemon.base_stats.attack }}</span></div>
+              <div class="stat-row"><span>DEF</span><span>{{ confirmedPokemon.base_stats.defense }}</span></div>
+              <div class="stat-row"><span>SPATK</span><span>{{ confirmedPokemon.base_stats.sp_atk }}</span></div>
+              <div class="stat-row"><span>SPDEF</span><span>{{ confirmedPokemon.base_stats.sp_def }}</span></div>
+              <div class="stat-row"><span>SPEED</span><span>{{ confirmedPokemon.base_stats.speed }}</span></div>
             </div>
           </div>
 
@@ -64,25 +33,18 @@
         <div class="right-column">
           <div class="starter-grid">
             <button
-                v-for="p in starters"
-                :key="p.api_id"
-                type="button"
-                class="starter-card"
-                :class="{
-                    selected: selectedPokemon?.api_id === p.api_id,
-                    confirmed: confirmedPokemon?.api_id === p.api_id
-                }"
-                :aria-pressed="selectedPokemon?.api_id === p.api_id"
-                @click="selectStarter(p)"
->
-                <img
-                    :src="p.sprite_url"
-                    class="starter-sprite"
-                    :alt="p.name"
-                />
-              <p class="starter-name">
-                {{ p.name }}
-              </p>
+              v-for="p in starters"
+              :key="p.id"
+              type="button"
+              class="starter-card"
+              :class="{
+                selected: selectedPokemon?.id === p.id,
+                confirmed: confirmedPokemon?.id === p.id
+              }"
+              @click="selectStarter(p)"
+            >
+              <img :src="p.sprite_url" class="starter-sprite" />
+              <p class="starter-name">{{ p.name }}</p>
             </button>
           </div>
 
@@ -104,10 +66,6 @@
       </div>
     </div>
 
-    <div class="ground-bar"></div>
-    <div class="footer-bar"></div>
-    <div class="footer-bar-bottom"></div>
-
     <div class="start-run-container">
       <button
         class="poke-btn"
@@ -121,7 +79,6 @@
 </template>
 
 <script setup lang="ts">
-
 type BaseStats = {
   hp: number
   attack: number
@@ -132,11 +89,10 @@ type BaseStats = {
 }
 
 type Pokemon = {
+  id: number
   api_id: number
   name: string
   sprite_url: string
-  type1: string | null
-  type2: string | null
   base_stats: BaseStats
 }
 
@@ -149,69 +105,57 @@ const confirmedPokemon = ref<Pokemon | null>(null)
 const creatingRun = ref(false)
 
 onMounted(async () => {
-  const { data, error } = await supabase.auth.getSession()
-  console.log("SESSION:", data)
-  console.log("SESSION ERROR:", error)
-})
-
-console.log("SUPABASE USER:", useSupabaseUser().value)
-onMounted(async () => {
-  const { data, error } = await supabase
+  const { data } = await supabase
     .from("pokemon_species")
-    .select("*")
+    .select("id, api_id, name, sprite_url, base_stats")
     .in("api_id", [1, 4, 7])
 
-  if (error || !data) return
-
-    starters.value = data as Pokemon[]
-  console.log("Fetched starters:", starters.value)
+  if (data) starters.value = data as Pokemon[]
 })
 
 const selectStarter = (pokemon: Pokemon) => {
-    selectedPokemon.value = pokemon
-  console.log("Selected starter:", pokemon.name)
+  selectedPokemon.value = pokemon
 }
 
 const confirmStarter = () => {
   if (!selectedPokemon.value) return
-
-    confirmedPokemon.value = selectedPokemon.value
-  console.log("Confirmed starter:", selectedPokemon.value.name)
+  confirmedPokemon.value = selectedPokemon.value
 }
 
 const startRun = async () => {
-  if (creatingRun.value) return
+  console.log("========== START RUN CLICKED ==========")
 
-  const { data, error } = await supabase.auth.getUser()
-  const uid = data?.user?.id
-
-  console.log("UID:", uid)
-  console.log("CONFIRMED:", confirmedPokemon.value)
-
-  if (!uid) return
-  if (!confirmedPokemon.value) return
+  if (creatingRun.value) {
+    console.log("Already creating run")
+    return
+  }
 
   creatingRun.value = true
 
   try {
-    const { data: existingRun } = await supabase
-      .from("runs")
-      .select("run_id")
-      .eq("account_id", uid)
-      .eq("status", "active")
-      .maybeSingle()
+    const { data: auth, error: authError } = await supabase.auth.getUser()
 
-    const runId = existingRun?.run_id
+    console.log("AUTH:", auth)
+    console.log("AUTH ERROR:", authError)
 
-    if (existingRun) {
-      await navigateTo({
-        path: "/runstart",
-        query: { run_id: runId }
-      })
+    const uid = auth?.user?.id
+
+    console.log("UID:", uid)
+    console.log("CONFIRMED POKEMON:", confirmedPokemon.value)
+
+    if (!uid) {
+      console.log("STOPPED: No UID")
       return
     }
 
-    const { data: run, error } = await supabase
+    if (!confirmedPokemon.value) {
+      console.log("STOPPED: No confirmed Pokemon")
+      return
+    }
+
+    console.log("CREATING NEW RUN")
+
+    const { data: run, error: runError } = await supabase
       .from("runs")
       .insert({
         account_id: uid,
@@ -219,38 +163,71 @@ const startRun = async () => {
         money: 0,
         status: "active"
       })
-      .select()
-      .single()
+      .select("run_id")
+      .maybeSingle()
 
-    if (error || !run) return
+    console.log("RUN INSERT RESULT:", run)
+    console.log("RUN INSERT ERROR:", runError)
+
+    if (runError) {
+      console.log("STOPPED: Run insert failed", runError)
+      return
+    }
+
+    if (!run) {
+      console.log("STOPPED: Run insert returned null")
+      return
+    }
 
     const starterHp = confirmedPokemon.value.base_stats.hp
 
-    await supabase
+    console.log("ATTEMPTING PLAYER INSERT")
+    console.log("RUN ID:", run.run_id)
+    console.log("POKEMON SPECIES ID:", confirmedPokemon.value.id)
+    console.log("STARTER HP:", starterHp)
+
+    const { data: playerData, error: playerError } = await supabase
       .from("player_pokemon")
       .insert({
         run_id: run.run_id,
-        pokemon_api_id: confirmedPokemon.value.api_id,
+        pokemon_species: confirmedPokemon.value.id,
         level: 5,
         current_hp: starterHp,
-        max_hp: starterHp,
         experience: 0,
-        team_slot: 1,
+        team_slot: 0,
         is_fainted: false
       })
+      .select("*")
+
+    console.log("PLAYER INSERT DATA:", playerData)
+    console.log("PLAYER INSERT ERROR:", playerError)
+
+    if (playerError) {
+      console.log("STOPPED: Player insert failed", playerError)
+      return
+    }
+
+    if (!playerData || playerData.length === 0) {
+      console.log("STOPPED: Player insert returned no rows")
+      return
+    }
+
+    console.log("SUCCESS - NAVIGATING TO RUNSTART")
 
     await navigateTo({
       path: "/RunStart",
-      query: { run_id: run.run_id }
+      query: {
+        run_id: run.run_id
+      }
     })
-
   } catch (err) {
-    console.error(err)
+    console.error("START RUN EXCEPTION:", err)
   } finally {
     creatingRun.value = false
   }
 }
 </script>
+
 
 <style scoped>
 @import url("https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap");
