@@ -121,6 +121,7 @@
 </template>
 
 <script setup lang="ts">
+
 type BaseStats = {
   hp: number
   attack: number
@@ -148,6 +149,13 @@ const confirmedPokemon = ref<Pokemon | null>(null)
 const creatingRun = ref(false)
 
 onMounted(async () => {
+  const { data, error } = await supabase.auth.getSession()
+  console.log("SESSION:", data)
+  console.log("SESSION ERROR:", error)
+})
+
+console.log("SUPABASE USER:", useSupabaseUser().value)
+onMounted(async () => {
   const { data, error } = await supabase
     .from("pokemon_species")
     .select("*")
@@ -174,7 +182,11 @@ const confirmStarter = () => {
 const startRun = async () => {
   if (creatingRun.value) return
 
-  const uid = user.value?.id
+  const { data, error } = await supabase.auth.getUser()
+  const uid = data?.user?.id
+
+  console.log("UID:", uid)
+  console.log("CONFIRMED:", confirmedPokemon.value)
 
   if (!uid) return
   if (!confirmedPokemon.value) return
@@ -189,8 +201,13 @@ const startRun = async () => {
       .eq("status", "active")
       .maybeSingle()
 
+    const runId = existingRun?.run_id
+
     if (existingRun) {
-      await navigateTo(`/run/${existingRun.run_id}`)
+      await navigateTo({
+        path: "/runstart",
+        query: { run_id: runId }
+      })
       return
     }
 
@@ -207,8 +224,7 @@ const startRun = async () => {
 
     if (error || !run) return
 
-    const starterHp =
-      confirmedPokemon.value.base_stats.hp
+    const starterHp = confirmedPokemon.value.base_stats.hp
 
     await supabase
       .from("player_pokemon")
@@ -223,7 +239,11 @@ const startRun = async () => {
         is_fainted: false
       })
 
-    await navigateTo(`/run/${run.run_id}`)
+    await navigateTo({
+      path: "/RunStart",
+      query: { run_id: run.run_id }
+    })
+
   } catch (err) {
     console.error(err)
   } finally {
