@@ -21,7 +21,11 @@
       <div class="team-summary">
         <h2>Final Team</h2>
         <div class="summary-grid">
-          <div v-for="pokemon in team" :key="pokemon.id" class="team-summary-card">
+          <div
+            v-for="pokemon in team"
+            :key="pokemon.id"
+            class="team-summary-card"
+          >
             <img
               :src="getSpeciesSprite(pokemon.species_id)"
               :alt="pokemon.name"
@@ -37,55 +41,59 @@
       </div>
 
       <div class="buttons-group">
-        <button class="return-btn primary" @click="returnHome">Return to Home</button>
-        <button class="return-btn secondary" @click="startNewRun">Start New Run</button>
+        <button class="return-btn primary" @click="returnHome">
+          Return to Home
+        </button>
+        <button class="return-btn secondary" @click="startNewRun">
+          Start New Run
+        </button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
-import { getSpeciesById } from '../utils/gen1-pokemon'
+import { ref, computed, onMounted } from "vue";
+import { useRouter, useRoute } from "vue-router";
+import { getSpeciesById } from "../utils/gen1-pokemon";
 
-const router = useRouter()
-const route = useRoute()
+const router = useRouter();
+const route = useRoute();
 
 interface Pokemon {
-  id: string
-  species_id: number
-  name: string
-  level: number
-  status_condition: string
+  id: string;
+  species_id: number;
+  name: string;
+  level: number;
+  status_condition: string;
 }
 
-const finalFloor = ref(1)
-const totalMoney = ref(0)
-const team = ref<Pokemon[]>([])
+const finalFloor = ref(1);
+const totalMoney = ref(0);
+const team = ref<Pokemon[]>([]);
 
-const teamSize = computed(() => team.value.length)
+const teamSize = computed(() => team.value.length + 1);
 
 onMounted(() => {
   // Get data from route params or query
-  finalFloor.value = parseInt(route.query.floor as string) || 1
-  totalMoney.value = parseInt(route.query.money as string) || 0
+  finalFloor.value = parseInt(route.query.floor as string) || 1;
+  totalMoney.value = parseInt(route.query.money as string) || 0;
 
   // Team data would be passed or fetched from the run state
   // For now, we just display what we have
-})
+});
 
 function getSpeciesSprite(speciesId: number): string {
-  const species = getSpeciesById(speciesId)
-  return species?.spriteUrl ?? ''
+  const species = getSpeciesById(speciesId);
+  return species?.spriteUrl ?? "";
 }
 
 function returnHome() {
-  router.push('/')
+  router.push("/MenuPage");
 }
 
 function startNewRun() {
-  router.push('/StartPage')
+  router.push("/StartPage");
 }
 </script>
 
@@ -97,7 +105,7 @@ function startNewRun() {
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, #3a9e4f 0%, #1a5a2f 100%);
-  font-family: 'Fredoka One', cursive;
+  font-family: "Fredoka One", cursive;
   color: #f0e6c8;
   padding: 20px;
 }

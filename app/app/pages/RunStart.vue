@@ -44,9 +44,14 @@
               <span>Lv {{ activeEnemy.level }}</span>
             </div>
             <div class="hp-bar">
-              <div class="hp-fill enemy-fill" :style="{ width: `${enemyHpPercent}%` }"></div>
+              <div
+                class="hp-fill enemy-fill"
+                :style="{ width: `${enemyHpPercent}%` }"
+              ></div>
             </div>
-            <div class="hp-text">{{ activeEnemy.current_hp }} / {{ activeEnemy.max_hp }}</div>
+            <div class="hp-text">
+              {{ activeEnemy.current_hp }} / {{ activeEnemy.max_hp }}
+            </div>
           </section>
 
           <section v-if="activePlayer" class="pokemon-card player-card">
@@ -55,13 +60,23 @@
               <span>Lv {{ activePlayer.level }}</span>
             </div>
             <div class="hp-bar">
-              <div class="hp-fill player-fill" :style="{ width: `${playerHpPercent}%` }"></div>
+              <div
+                class="hp-fill player-fill"
+                :style="{ width: `${playerHpPercent}%` }"
+              ></div>
             </div>
-            <div class="hp-text">{{ activePlayer.current_hp }} / {{ activePlayer.max_hp }}</div>
+            <div class="hp-text">
+              {{ activePlayer.current_hp }} / {{ activePlayer.max_hp }}
+            </div>
             <div class="exp-bar">
-              <div class="exp-fill" :style="{ width: `${playerExpPercent}%` }"></div>
+              <div
+                class="exp-fill"
+                :style="{ width: `${playerExpPercent}%` }"
+              ></div>
             </div>
-            <div class="exp-text">EXP {{ playerExperience }} / {{ playerNextLevelExperience }}</div>
+            <div class="exp-text">
+              EXP {{ playerExperience }} / {{ playerNextLevelExperience }}
+            </div>
           </section>
         </div>
 
@@ -84,18 +99,44 @@
 
           <div class="command-panel">
             <div class="command-grid">
-              <button class="command-btn" type="button" :disabled="battleLost || choosingReward" @click="activeCommand = 'pokemon'">
+              <button
+                class="command-btn"
+                type="button"
+                :disabled="battleLost || choosingReward"
+                @click="activeCommand = 'pokemon'"
+              >
                 Pokémon
               </button>
-              <button class="command-btn" type="button" :disabled="battleLost || awaitingSwitch || choosingReward" @click="activeCommand = 'bag'">
+              <button
+                class="command-btn"
+                type="button"
+                :disabled="battleLost || awaitingSwitch || choosingReward"
+                @click="activeCommand = 'bag'"
+              >
                 Bag
               </button>
-              <button class="command-btn" type="button" :disabled="battleLost || awaitingSwitch || choosingReward" @click="activeCommand = 'catch'">
+              <button
+                class="command-btn"
+                type="button"
+                :disabled="battleLost || awaitingSwitch || choosingReward"
+                @click="activeCommand = 'catch'"
+              >
                 Catch
               </button>
-              <button class="command-btn danger" type="button" :disabled="battleLost || awaitingSwitch || choosingReward || transitioningFloor" @click="attemptRun">
+              <button
+                class="command-btn danger"
+                type="button"
+                :disabled="
+                  battleLost ||
+                  awaitingSwitch ||
+                  choosingReward ||
+                  transitioningFloor
+                "
+                @click="attemptRun"
+              >
                 Run
               </button>
+              <button class="poke-btn" @click="goToEnd">End Run</button>
             </div>
 
             <div v-if="activeCommand === 'pokemon'" class="context-panel">
@@ -104,11 +145,22 @@
                 :key="member?.id ?? `empty-${index}`"
                 class="context-row"
                 type="button"
-                :disabled="!member || memberIsActive(member) || memberIsFainted(member) || (!awaitingSwitch && movesLocked)"
+                :disabled="
+                  !member ||
+                  memberIsActive(member) ||
+                  memberIsFainted(member) ||
+                  (!awaitingSwitch && movesLocked)
+                "
                 @click="switchPokemon(member)"
               >
-                <span>{{ member ? member.name : `Empty Slot ${index + 1}` }}</span>
-                <small v-if="member">Lv {{ member.level }} · {{ member.current_hp }}/{{ member.max_hp }}</small>
+                <span>{{
+                  member ? member.name : `Empty Slot ${index + 1}`
+                }}</span>
+                <small v-if="member"
+                  >Lv {{ member.level }} · {{ member.current_hp }}/{{
+                    member.max_hp
+                  }}</small
+                >
               </button>
             </div>
 
@@ -124,7 +176,9 @@
                 <span>{{ item.item_name }}</span>
                 <small>x{{ item.quantity }}</small>
               </button>
-              <div v-if="usableItems.length === 0" class="empty-context">No items</div>
+              <div v-if="usableItems.length === 0" class="empty-context">
+                No items
+              </div>
             </div>
 
             <div v-else-if="activeCommand === 'catch'" class="context-panel">
@@ -179,32 +233,36 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { computed, nextTick, onMounted, ref, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import {
   type BattleMove,
   type BattlePokemon,
   type TurnResult,
   useBattleEngine,
-} from '../composables/useBattleEngine'
-import { useFloorSystem } from '../composables/useFloorSystem'
-import { type ItemReward, useItemRewards } from '../composables/useItemRewards'
-import { getMoveById, getWildMovesForSpecies } from '../utils/moves'
-import { type Gen1Species, gen1Pokemon, getSpeciesById } from '../utils/gen1-pokemon'
-import { typeText } from '../utils/typingLog'
-import { useRunStore } from '../stores/runStore'
+} from "../composables/useBattleEngine";
+import { useFloorSystem } from "../composables/useFloorSystem";
+import { type ItemReward, useItemRewards } from "../composables/useItemRewards";
+import { getMoveById, getWildMovesForSpecies } from "../utils/moves";
+import {
+  type Gen1Species,
+  gen1Pokemon,
+  getSpeciesById,
+} from "../utils/gen1-pokemon";
+import { typeText } from "../utils/typingLog";
+import { useRunStore } from "../stores/runStore";
 
-const supabase = useSupabaseClient()
-const route = useRoute()
-const router = useRouter()
-const runStore = useRunStore()
+const supabase = useSupabaseClient();
+const route = useRoute();
+const router = useRouter();
+const runStore = useRunStore();
 const {
   currentFloor,
   startRun: startFloorRun,
   advanceFloor,
   getCurrentEnemy,
-} = useFloorSystem()
-const { generateRewardChoices, saveRewardChoice } = useItemRewards()
+} = useFloorSystem();
+const { generateRewardChoices, saveRewardChoice } = useItemRewards();
 
 const {
   player,
@@ -218,120 +276,161 @@ const {
   isBattleOver,
 } = useBattleEngine({
   onEnemyFainted: handleEnemyFainted,
-})
+});
 
-const playerPokemon = ref<Record<string, any> | null>(null)
-const partyPokemon = ref<Record<string, any>[]>([])
-const runItems = ref<Array<Record<string, any>>>([])
-const loading = ref(true)
-const error = ref('')
-const logBox = ref<HTMLElement | null>(null)
-const typedLog = ref<string[]>([])
-const nextLogIndex = ref(0)
-const logQueue = ref(Promise.resolve())
-const rewardNotice = ref<ItemReward | null>(null)
-const rewardChoices = ref<Array<Omit<ItemReward, 'run_id'>>>([])
-const pendingRewardPlayer = ref<Record<string, any> | null>(null)
-const transitioningFloor = ref(false)
-const battleLost = ref(false)
-const awaitingSwitch = ref(false)
-const choosingReward = ref(false)
-const activeCommand = ref<'pokemon' | 'bag' | 'catch' | null>(null)
-const pokeballs = ref([
-  { name: 'Poké Ball', quantity: 3, catchBonus: 1 },
-])
+const playerPokemon = ref<Record<string, any> | null>(null);
+const partyPokemon = ref<Record<string, any>[]>([]);
+const runItems = ref<Array<Record<string, any>>>([]);
+const loading = ref(true);
+const error = ref("");
+const logBox = ref<HTMLElement | null>(null);
+const typedLog = ref<string[]>([]);
+const nextLogIndex = ref(0);
+const logQueue = ref(Promise.resolve());
+const rewardNotice = ref<ItemReward | null>(null);
+const rewardChoices = ref<Array<Omit<ItemReward, "run_id">>>([]);
+const pendingRewardPlayer = ref<Record<string, any> | null>(null);
+const transitioningFloor = ref(false);
+const battleLost = ref(false);
+const awaitingSwitch = ref(false);
+const choosingReward = ref(false);
+const activeCommand = ref<"pokemon" | "bag" | "catch" | null>(null);
+const pokeballs = ref([{ name: "Poké Ball", quantity: 3, catchBonus: 1 }]);
 
-const activePlayer = computed(() => player.value)
-const activeEnemy = computed(() => enemy.value)
-const playerMoves = computed(() => activePlayer.value?.moves ?? [])
+const activePlayer = computed(() => player.value);
+const activeEnemy = computed(() => enemy.value);
+const playerMoves = computed(() => activePlayer.value?.moves ?? []);
 const movesLocked = computed(() => {
-  return transitioningFloor.value ||
+  return (
+    transitioningFloor.value ||
     battleLost.value ||
     awaitingSwitch.value ||
     choosingReward.value ||
     turnLocked.value ||
-    currentTurn.value !== 'player' ||
+    currentTurn.value !== "player" ||
     isBattleOver.value
-})
+  );
+});
 const turnLabel = computed(() => {
-  if (choosingReward.value) return 'Choose an item'
-  if (awaitingSwitch.value) return 'Choose next Pokémon'
-  return currentTurn.value === 'player' ? "Player's turn" : "Enemy's turn"
-})
-const playerHpPercent = computed(() => getHpPercent(activePlayer.value))
-const enemyHpPercent = computed(() => getHpPercent(activeEnemy.value))
-const displayFloor = computed(() => currentFloor.value || runStore.currentFloor || 1)
-const playerExperience = computed(() => Math.max(0, Number((activePlayer.value as any)?.experience ?? playerPokemon.value?.experience ?? 0)))
-const playerNextLevelExperience = computed(() => getExperienceForNextLevel(activePlayer.value?.level ?? playerPokemon.value?.level ?? 1))
+  if (choosingReward.value) return "Choose an item";
+  if (awaitingSwitch.value) return "Choose next Pokémon";
+  return currentTurn.value === "player" ? "Player's turn" : "Enemy's turn";
+});
+const playerHpPercent = computed(() => getHpPercent(activePlayer.value));
+const enemyHpPercent = computed(() => getHpPercent(activeEnemy.value));
+const displayFloor = computed(
+  () => currentFloor.value || runStore.currentFloor || 1,
+);
+const playerExperience = computed(() =>
+  Math.max(
+    0,
+    Number(
+      (activePlayer.value as any)?.experience ??
+        playerPokemon.value?.experience ??
+        0,
+    ),
+  ),
+);
+const playerNextLevelExperience = computed(() =>
+  getExperienceForNextLevel(
+    activePlayer.value?.level ?? playerPokemon.value?.level ?? 1,
+  ),
+);
+const goToEnd = (): void => {
+  router.push("/RunCompletePage");
+};
 const playerExpPercent = computed(() => {
-  return Math.max(0, Math.min(100, Math.round((playerExperience.value / playerNextLevelExperience.value) * 100)))
-})
+  return Math.max(
+    0,
+    Math.min(
+      100,
+      Math.round(
+        (playerExperience.value / playerNextLevelExperience.value) * 100,
+      ),
+    ),
+  );
+});
 const partySlots = computed(() => {
-  const slots: Array<Record<string, any> | null> = Array.from({ length: 6 }, () => null)
+  const slots: Array<Record<string, any> | null> = Array.from(
+    { length: 6 },
+    () => null,
+  );
   for (const member of partyPokemon.value) {
-    const slot = Math.max(0, Math.min(5, Number(member.team_slot ?? slots.findIndex((item) => item === null))))
-    slots[slot] = member
+    const slot = Math.max(
+      0,
+      Math.min(
+        5,
+        Number(member.team_slot ?? slots.findIndex((item) => item === null)),
+      ),
+    );
+    slots[slot] = member;
   }
-  return slots
-})
+  return slots;
+});
 const usableItems = computed(() => {
-  const totals = new Map<string, number>()
+  const totals = new Map<string, number>();
   for (const item of runItems.value) {
-    const name = String(item.item_name ?? '')
-    if (!name) continue
-    totals.set(name, (totals.get(name) ?? 0) + Number(item.quantity ?? 1))
+    const name = String(item.item_name ?? "");
+    if (!name) continue;
+    totals.set(name, (totals.get(name) ?? 0) + Number(item.quantity ?? 1));
   }
 
-  return Array.from(totals.entries()).map(([item_name, quantity]) => ({ item_name, quantity }))
-})
+  return Array.from(totals.entries()).map(([item_name, quantity]) => ({
+    item_name,
+    quantity,
+  }));
+});
 const usableSwitchMembers = computed(() => {
-  return partyPokemon.value.filter((member) => !memberIsActive(member) && !memberIsFainted(member))
-})
+  return partyPokemon.value.filter(
+    (member) => !memberIsActive(member) && !memberIsFainted(member),
+  );
+});
 
 onMounted(async () => {
-  const runId = getRouteRunId()
+  const runId = getRouteRunId();
   if (!runId) {
-    error.value = 'Missing run_id'
-    loading.value = false
-    return
+    error.value = "Missing run_id";
+    loading.value = false;
+    return;
   }
 
-  await loadRunItems(runId)
-  const loadedPlayer = await loadPartyPokemon(runId)
+  await loadRunItems(runId);
+  const loadedPlayer = await loadPartyPokemon(runId);
   if (!loadedPlayer) {
-    loading.value = false
-    return
+    loading.value = false;
+    return;
   }
 
-  const firstEnemy = await startFloorRun(runId)
+  const firstEnemy = await startFloorRun(runId);
   if (!firstEnemy) {
-    error.value = 'Could not generate an enemy for this floor'
-    loading.value = false
-    return
+    error.value = "Could not generate an enemy for this floor";
+    loading.value = false;
+    return;
   }
 
-  playerPokemon.value = loadedPlayer
-  beginBattle(loadedPlayer, firstEnemy)
-  loading.value = false
-})
+  playerPokemon.value = loadedPlayer;
+  beginBattle(loadedPlayer, firstEnemy);
+  loading.value = false;
+});
 
 watch(
   () => battleLog.value.length,
   () => {
-    const newMessages = battleLog.value.slice(nextLogIndex.value)
-    nextLogIndex.value = battleLog.value.length
+    const newMessages = battleLog.value.slice(nextLogIndex.value);
+    nextLogIndex.value = battleLog.value.length;
 
     for (const message of newMessages) {
-      logQueue.value = logQueue.value.then(() => appendTypedMessage(message))
+      logQueue.value = logQueue.value.then(() => appendTypedMessage(message));
     }
   },
-  { flush: 'post' }
-)
+  { flush: "post" },
+);
 
 async function loadPartyPokemon(runId: string) {
   const { data, error: fetchError } = await supabase
-    .from('player_pokemon')
-    .select(`
+    .from("player_pokemon")
+    .select(
+      `
       *,
       species:pokemon_species (
         id,
@@ -340,25 +439,31 @@ async function loadPartyPokemon(runId: string) {
         sprite_url,
         base_stats
       )
-    `)
-    .eq('run_id', runId)
-    .order('team_slot', { ascending: true })
+    `,
+    )
+    .eq("run_id", runId)
+    .order("team_slot", { ascending: true });
 
   if (fetchError) {
-    error.value = 'Database error loading Pokémon'
-    return null
+    error.value = "Database error loading Pokémon";
+    return null;
   }
 
   if (!data?.length) {
-    error.value = 'No Pokémon found for this run'
-    return null
+    error.value = "No Pokémon found for this run";
+    return null;
   }
 
-  const normalizedParty = data.map((pokemon: any) => normalizeStoredPokemon(pokemon))
-  partyPokemon.value = normalizedParty
-  runStore.setTeam(normalizedParty as any)
+  const normalizedParty = data.map((pokemon: any) =>
+    normalizeStoredPokemon(pokemon),
+  );
+  partyPokemon.value = normalizedParty;
+  runStore.setTeam(normalizedParty as any);
 
-  return normalizedParty.find((member) => !memberIsFainted(member)) ?? normalizedParty[0]
+  return (
+    normalizedParty.find((member) => !memberIsFainted(member)) ??
+    normalizedParty[0]
+  );
 }
 
 function normalizeStoredPokemon(data: Record<string, any>) {
@@ -369,265 +474,336 @@ function normalizeStoredPokemon(data: Record<string, any>) {
     name: data.species?.name ?? data.name,
     sprite: data.species?.sprite_url ?? data.sprite,
     base_stats: data.species?.base_stats ?? data.base_stats,
-    status_condition: data.status_condition ?? (data.is_fainted ? 'fainted' : 'healthy'),
-  }
+    status_condition:
+      data.status_condition ?? (data.is_fainted ? "fainted" : "healthy"),
+  };
 }
 
 async function loadRunItems(runId: string) {
   const { data, error: itemError } = await supabase
-    .from('run_items')
-    .select('*')
-    .eq('run_id', runId)
+    .from("run_items")
+    .select("*")
+    .eq("run_id", runId);
 
   if (itemError) {
-    console.error('Failed to load run items:', itemError)
-    runItems.value = []
-    return
+    console.error("Failed to load run items:", itemError);
+    runItems.value = [];
+    return;
   }
 
-  runItems.value = data ?? []
+  runItems.value = data ?? [];
 }
 
 async function handlePlayerAttack(move: BattleMove) {
-  if (movesLocked.value) return
+  if (movesLocked.value) return;
 
-  await playerAttack(move)
+  await playerAttack(move);
 
   if (activePlayer.value && activePlayer.value.current_hp <= 0) {
-    await handlePlayerFainted(activePlayer.value)
+    await handlePlayerFainted(activePlayer.value);
   }
 }
 
 async function handlePlayerFainted(faintedPlayer: BattlePokemon) {
-  await logQueue.value
+  await logQueue.value;
 
   Object.assign(faintedPlayer, {
     current_hp: 0,
-    status_condition: 'fainted',
-  })
+    status_condition: "fainted",
+  });
 
-  const partyMember = partyPokemon.value.find((member) => memberIsActive(member))
+  const partyMember = partyPokemon.value.find((member) =>
+    memberIsActive(member),
+  );
   if (partyMember) {
-    partyMember.current_hp = 0
-    partyMember.status_condition = 'fainted'
+    partyMember.current_hp = 0;
+    partyMember.status_condition = "fainted";
   }
 
-  await persistPlayerPokemon(faintedPlayer)
+  await persistPlayerPokemon(faintedPlayer);
 
   if (usableSwitchMembers.value.length > 0) {
-    awaitingSwitch.value = true
-    activeCommand.value = 'pokemon'
-    await appendTypedMessage('Choose another Pokémon!')
-    return
+    awaitingSwitch.value = true;
+    activeCommand.value = "pokemon";
+    await appendTypedMessage("Choose another Pokémon!");
+    return;
   }
 
-  battleLost.value = true
-  await markRunLost()
+  battleLost.value = true;
+  await markRunLost();
 }
 
 async function switchPokemon(member: Record<string, any> | null) {
-  if (!member || !activeEnemy.value || (!awaitingSwitch.value && movesLocked.value) || memberIsFainted(member) || memberIsActive(member)) return
+  if (
+    !member ||
+    !activeEnemy.value ||
+    (!awaitingSwitch.value && movesLocked.value) ||
+    memberIsFainted(member) ||
+    memberIsActive(member)
+  )
+    return;
 
-  playerPokemon.value = member
-  awaitingSwitch.value = false
-  switchPlayer(normalizeBattlePokemon(member, 'player'))
-  activeCommand.value = null
+  playerPokemon.value = member;
+  awaitingSwitch.value = false;
+  switchPlayer(normalizeBattlePokemon(member, "player"));
+  activeCommand.value = null;
 }
 
 async function useItem(item: { item_name: string; quantity: number }) {
-  if (!activePlayer.value || movesLocked.value) return
+  if (!activePlayer.value || movesLocked.value) return;
 
-  const itemName = item.item_name
-  let pokemonToPersist: Record<string, any> = activePlayer.value
-  if (itemName === 'Potion') {
-    healActivePokemon(20)
-    await appendTypedMessage(`${activePlayer.value.name} recovered HP!`)
-  } else if (itemName === 'Super Potion') {
-    healActivePokemon(50)
-    await appendTypedMessage(`${activePlayer.value.name} recovered a lot of HP!`)
-  } else if (itemName === 'X Attack') {
-    activePlayer.value.attack += 10
-    await appendTypedMessage(`${activePlayer.value.name}'s Attack rose!`)
-  } else if (itemName === 'X Defense') {
-    activePlayer.value.defense += 10
-    await appendTypedMessage(`${activePlayer.value.name}'s Defense rose!`)
-  } else if (itemName === 'Revive') {
-    const faintedMember = partyPokemon.value.find((member) => memberIsFainted(member))
+  const itemName = item.item_name;
+  let pokemonToPersist: Record<string, any> = activePlayer.value;
+  if (itemName === "Potion") {
+    healActivePokemon(20);
+    await appendTypedMessage(`${activePlayer.value.name} recovered HP!`);
+  } else if (itemName === "Super Potion") {
+    healActivePokemon(50);
+    await appendTypedMessage(
+      `${activePlayer.value.name} recovered a lot of HP!`,
+    );
+  } else if (itemName === "X Attack") {
+    activePlayer.value.attack += 10;
+    await appendTypedMessage(`${activePlayer.value.name}'s Attack rose!`);
+  } else if (itemName === "X Defense") {
+    activePlayer.value.defense += 10;
+    await appendTypedMessage(`${activePlayer.value.name}'s Defense rose!`);
+  } else if (itemName === "Revive") {
+    const faintedMember = partyPokemon.value.find((member) =>
+      memberIsFainted(member),
+    );
     if (!faintedMember) {
-      await appendTypedMessage('No fainted Pokémon to revive.')
-      return
+      await appendTypedMessage("No fainted Pokémon to revive.");
+      return;
     }
-    faintedMember.current_hp = Math.max(1, Math.floor((faintedMember.max_hp ?? 1) / 2))
-    faintedMember.status_condition = 'healthy'
-    pokemonToPersist = faintedMember
-    await appendTypedMessage(`${faintedMember.name} was revived!`)
+    faintedMember.current_hp = Math.max(
+      1,
+      Math.floor((faintedMember.max_hp ?? 1) / 2),
+    );
+    faintedMember.status_condition = "healthy";
+    pokemonToPersist = faintedMember;
+    await appendTypedMessage(`${faintedMember.name} was revived!`);
   } else {
-    await appendTypedMessage(`${itemName} cannot be used right now.`)
-    return
+    await appendTypedMessage(`${itemName} cannot be used right now.`);
+    return;
   }
 
-  consumeRunItem(itemName)
-  await persistPlayerPokemon(pokemonToPersist)
-  activeCommand.value = null
+  consumeRunItem(itemName);
+  await persistPlayerPokemon(pokemonToPersist);
+  activeCommand.value = null;
 }
 
-async function attemptCatch(ball: { name: string; quantity: number; catchBonus: number }) {
-  if (!activeEnemy.value || !activePlayer.value || movesLocked.value || ball.quantity <= 0) return
+async function attemptCatch(ball: {
+  name: string;
+  quantity: number;
+  catchBonus: number;
+}) {
+  if (
+    !activeEnemy.value ||
+    !activePlayer.value ||
+    movesLocked.value ||
+    ball.quantity <= 0
+  )
+    return;
 
-  const hpFactor = 1 - activeEnemy.value.current_hp / Math.max(1, activeEnemy.value.max_hp)
-  const levelFactor = Math.max(-0.2, Math.min(0.25, (activePlayer.value.level - activeEnemy.value.level) * 0.03))
-  const catchChance = Math.max(0.15, Math.min(0.75, 0.3 + hpFactor * 0.35 + levelFactor)) * ball.catchBonus
-  ball.quantity = Math.max(0, ball.quantity - 1)
+  const hpFactor =
+    1 - activeEnemy.value.current_hp / Math.max(1, activeEnemy.value.max_hp);
+  const levelFactor = Math.max(
+    -0.2,
+    Math.min(0.25, (activePlayer.value.level - activeEnemy.value.level) * 0.03),
+  );
+  const catchChance =
+    Math.max(0.15, Math.min(0.75, 0.3 + hpFactor * 0.35 + levelFactor)) *
+    ball.catchBonus;
+  ball.quantity = Math.max(0, ball.quantity - 1);
 
   if (Math.random() <= catchChance) {
-    await appendTypedMessage(`Caught ${activeEnemy.value.name}!`)
-    await addCaughtPokemonToParty(activeEnemy.value)
-    const nextEnemy = await advanceFloor()
+    await appendTypedMessage(`Caught ${activeEnemy.value.name}!`);
+    await addCaughtPokemonToParty(activeEnemy.value);
+    const nextEnemy = await advanceFloor();
     if (nextEnemy && activePlayer.value) {
-      resetTypedLog()
-      beginBattle(activePlayer.value, getCurrentEnemy() ?? nextEnemy)
+      resetTypedLog();
+      beginBattle(activePlayer.value, getCurrentEnemy() ?? nextEnemy);
     }
   } else {
-    await appendTypedMessage(`${activeEnemy.value.name} broke free!`)
+    await appendTypedMessage(`${activeEnemy.value.name} broke free!`);
   }
 
-  activeCommand.value = null
+  activeCommand.value = null;
 }
 
 async function attemptRun() {
-  if (!activePlayer.value || !activeEnemy.value || transitioningFloor.value || battleLost.value) return
+  if (
+    !activePlayer.value ||
+    !activeEnemy.value ||
+    transitioningFloor.value ||
+    battleLost.value
+  )
+    return;
 
-  const levelDifference = activePlayer.value.level - activeEnemy.value.level
-  const escapeChance = Math.max(0.2, Math.min(0.9, 0.5 + levelDifference * 0.08))
+  const levelDifference = activePlayer.value.level - activeEnemy.value.level;
+  const escapeChance = Math.max(
+    0.2,
+    Math.min(0.9, 0.5 + levelDifference * 0.08),
+  );
 
   if (Math.random() <= escapeChance) {
-    await appendTypedMessage('Got away safely!')
-    transitioningFloor.value = true
-    const nextEnemy = await advanceFloor()
+    await appendTypedMessage("Got away safely!");
+    transitioningFloor.value = true;
+    const nextEnemy = await advanceFloor();
     if (nextEnemy) {
-      resetTypedLog()
-      beginBattle(activePlayer.value, getCurrentEnemy() ?? nextEnemy)
+      resetTypedLog();
+      beginBattle(activePlayer.value, getCurrentEnemy() ?? nextEnemy);
     }
-    transitioningFloor.value = false
+    transitioningFloor.value = false;
   } else {
-    await appendTypedMessage("Couldn't escape!")
+    await appendTypedMessage("Couldn't escape!");
   }
 
-  activeCommand.value = null
+  activeCommand.value = null;
 }
 
-async function handleEnemyFainted(_result: TurnResult, defeatedEnemy: BattlePokemon, winningPlayer: BattlePokemon) {
-  transitioningFloor.value = true
-  await logQueue.value
+async function handleEnemyFainted(
+  _result: TurnResult,
+  defeatedEnemy: BattlePokemon,
+  winningPlayer: BattlePokemon,
+) {
+  transitioningFloor.value = true;
+  await logQueue.value;
 
-  const updatedPlayer = await awardExperience(winningPlayer, defeatedEnemy)
+  const updatedPlayer = await awardExperience(winningPlayer, defeatedEnemy);
 
-  pendingRewardPlayer.value = updatedPlayer
-  rewardChoices.value = generateRewardChoices(displayFloor.value, 3)
-  choosingReward.value = rewardChoices.value.length > 0
-  await appendTypedMessage('Choose one item to keep.')
+  pendingRewardPlayer.value = updatedPlayer;
+  rewardChoices.value = generateRewardChoices(displayFloor.value, 3);
+  choosingReward.value = rewardChoices.value.length > 0;
+  await appendTypedMessage("Choose one item to keep.");
 }
 
-async function chooseReward(choice: Omit<ItemReward, 'run_id'>) {
-  if (!choosingReward.value) return
+async function chooseReward(choice: Omit<ItemReward, "run_id">) {
+  if (!choosingReward.value) return;
 
-  choosingReward.value = false
-  const reward = await saveRewardChoice(choice)
+  choosingReward.value = false;
+  const reward = await saveRewardChoice(choice);
   if (reward) {
-    runItems.value.push(reward)
-    rewardNotice.value = reward
-    await appendTypedMessage(`You found ${reward.item_name}!`)
+    runItems.value.push(reward);
+    rewardNotice.value = reward;
+    await appendTypedMessage(`You found ${reward.item_name}!`);
   }
 
-  const nextEnemy = await advanceFloor()
-  await wait(1200)
-  rewardNotice.value = null
-  rewardChoices.value = []
+  const nextEnemy = await advanceFloor();
+  await wait(1200);
+  rewardNotice.value = null;
+  rewardChoices.value = [];
 
   if (nextEnemy) {
-    resetTypedLog()
-    beginBattle(pendingRewardPlayer.value ?? activePlayer.value, getCurrentEnemy() ?? nextEnemy)
+    resetTypedLog();
+    beginBattle(
+      pendingRewardPlayer.value ?? activePlayer.value,
+      getCurrentEnemy() ?? nextEnemy,
+    );
   }
 
-  pendingRewardPlayer.value = null
-  transitioningFloor.value = false
+  pendingRewardPlayer.value = null;
+  transitioningFloor.value = false;
 }
 
-async function awardExperience(winningPlayer: BattlePokemon, defeatedEnemy: BattlePokemon) {
-  const xpGain = calculateExperienceGain(winningPlayer.level, defeatedEnemy.level)
+async function awardExperience(
+  winningPlayer: BattlePokemon,
+  defeatedEnemy: BattlePokemon,
+) {
+  const xpGain = calculateExperienceGain(
+    winningPlayer.level,
+    defeatedEnemy.level,
+  );
   const updatedPlayer: Record<string, any> = {
     ...winningPlayer,
-    experience: ((winningPlayer as any).experience ?? playerPokemon.value?.experience ?? 0) + xpGain,
-  }
-  const levelUps = applyExperienceLevelUps(updatedPlayer)
+    experience:
+      ((winningPlayer as any).experience ??
+        playerPokemon.value?.experience ??
+        0) + xpGain,
+  };
+  const levelUps = applyExperienceLevelUps(updatedPlayer);
 
   if (levelUps > 0) {
-    await appendTypedMessage(`${updatedPlayer.name} gained ${xpGain} EXP!`)
-    await appendTypedMessage(`${updatedPlayer.name} grew to Lv ${updatedPlayer.level}!`)
+    await appendTypedMessage(`${updatedPlayer.name} gained ${xpGain} EXP!`);
+    await appendTypedMessage(
+      `${updatedPlayer.name} grew to Lv ${updatedPlayer.level}!`,
+    );
   } else {
-    await appendTypedMessage(`${updatedPlayer.name} gained ${xpGain} EXP!`)
+    await appendTypedMessage(`${updatedPlayer.name} gained ${xpGain} EXP!`);
   }
 
-  Object.assign(winningPlayer, updatedPlayer)
-  playerPokemon.value = updatedPlayer
-  await persistPlayerPokemon(updatedPlayer)
-  return updatedPlayer
+  Object.assign(winningPlayer, updatedPlayer);
+  playerPokemon.value = updatedPlayer;
+  await persistPlayerPokemon(updatedPlayer);
+  return updatedPlayer;
 }
 
 async function persistPlayerPokemon(updatedPlayer: Record<string, any>) {
-  const runId = getRouteRunId()
-  if (!runId) return
+  const runId = getRouteRunId();
+  if (!runId) return;
 
   let query = supabase
-    .from('player_pokemon')
+    .from("player_pokemon")
     .update({
-      experience: updatedPlayer.experience ?? playerPokemon.value?.experience ?? 0,
+      experience:
+        updatedPlayer.experience ?? playerPokemon.value?.experience ?? 0,
       level: updatedPlayer.level,
       max_hp: updatedPlayer.max_hp,
       current_hp: updatedPlayer.current_hp,
-      status_condition: updatedPlayer.status_condition ?? 'healthy',
+      status_condition: updatedPlayer.status_condition ?? "healthy",
     })
-    .eq('run_id', runId)
+    .eq("run_id", runId);
 
   query = updatedPlayer.id
-    ? query.eq('id', updatedPlayer.id)
-    : query.eq('team_slot', updatedPlayer.team_slot ?? 0)
+    ? query.eq("id", updatedPlayer.id)
+    : query.eq("team_slot", updatedPlayer.team_slot ?? 0);
 
-  await query
+  await query;
 }
 
 function healActivePokemon(amount: number) {
-  if (!activePlayer.value) return
-  activePlayer.value.current_hp = Math.min(activePlayer.value.max_hp, activePlayer.value.current_hp + amount)
-  const partyMember = partyPokemon.value.find((member) => memberIsActive(member))
+  if (!activePlayer.value) return;
+  activePlayer.value.current_hp = Math.min(
+    activePlayer.value.max_hp,
+    activePlayer.value.current_hp + amount,
+  );
+  const partyMember = partyPokemon.value.find((member) =>
+    memberIsActive(member),
+  );
   if (partyMember) {
-    partyMember.current_hp = activePlayer.value.current_hp
+    partyMember.current_hp = activePlayer.value.current_hp;
   }
 }
 
 function consumeRunItem(itemName: string) {
-  const item = runItems.value.find((candidate) => candidate.item_name === itemName && Number(candidate.quantity ?? 1) > 0)
-  if (!item) return
-  item.quantity = Math.max(0, Number(item.quantity ?? 1) - 1)
+  const item = runItems.value.find(
+    (candidate) =>
+      candidate.item_name === itemName && Number(candidate.quantity ?? 1) > 0,
+  );
+  if (!item) return;
+  item.quantity = Math.max(0, Number(item.quantity ?? 1) - 1);
 }
 
 async function addCaughtPokemonToParty(caughtPokemon: BattlePokemon) {
-  const runId = getRouteRunId()
-  if (!runId || partyPokemon.value.length >= 6) return
+  const runId = getRouteRunId();
+  if (!runId || partyPokemon.value.length >= 6) return;
 
-  const nextSlot = firstOpenPartySlot()
+  const nextSlot = firstOpenPartySlot();
   const { data, error: catchError } = await supabase
-    .from('player_pokemon')
+    .from("player_pokemon")
     .insert({
       run_id: runId,
-      pokemon_species: caughtPokemon.species_id ?? caughtPokemon.pokemon_species,
+      pokemon_species:
+        caughtPokemon.species_id ?? caughtPokemon.pokemon_species,
       level: caughtPokemon.level,
       current_hp: caughtPokemon.current_hp,
       experience: 0,
       team_slot: nextSlot,
       is_fainted: false,
     })
-    .select(`
+    .select(
+      `
       *,
       species:pokemon_species (
         id,
@@ -636,155 +812,198 @@ async function addCaughtPokemonToParty(caughtPokemon: BattlePokemon) {
         sprite_url,
         base_stats
       )
-    `)
-    .maybeSingle()
+    `,
+    )
+    .maybeSingle();
 
   if (catchError || !data) {
-    console.error('Failed to add caught Pokémon:', catchError)
-    return
+    console.error("Failed to add caught Pokémon:", catchError);
+    return;
   }
 
-  partyPokemon.value.push(normalizeStoredPokemon(data))
+  partyPokemon.value.push(normalizeStoredPokemon(data));
 }
 
 function firstOpenPartySlot() {
-  const occupiedSlots = new Set(partyPokemon.value.map((member) => Number(member.team_slot ?? 0)))
+  const occupiedSlots = new Set(
+    partyPokemon.value.map((member) => Number(member.team_slot ?? 0)),
+  );
   for (let slot = 0; slot < 6; slot += 1) {
-    if (!occupiedSlots.has(slot)) return slot
+    if (!occupiedSlots.has(slot)) return slot;
   }
-  return Math.min(5, partyPokemon.value.length)
+  return Math.min(5, partyPokemon.value.length);
 }
 
 function memberIsActive(member: Record<string, any> | null) {
-  if (!member || !activePlayer.value) return false
-  return member.id === activePlayer.value.id || member.team_slot === (activePlayer.value as any).team_slot
+  if (!member || !activePlayer.value) return false;
+  return (
+    member.id === activePlayer.value.id ||
+    member.team_slot === (activePlayer.value as any).team_slot
+  );
 }
 
 function memberIsFainted(member: Record<string, any> | null) {
-  if (!member) return false
-  return member.status_condition === 'fainted' || member.is_fainted || Number(member.current_hp ?? 0) <= 0
+  if (!member) return false;
+  return (
+    member.status_condition === "fainted" ||
+    member.is_fainted ||
+    Number(member.current_hp ?? 0) <= 0
+  );
 }
 
 async function markRunLost() {
-  const runId = getRouteRunId()
-  if (!runId) return
+  const runId = getRouteRunId();
+  if (!runId) return;
 
   await supabase
-    .from('runs')
-    .update({ status: 'lost', current_floor: displayFloor.value })
-    .eq('run_id', runId)
+    .from("runs")
+    .update({ status: "lost", current_floor: displayFloor.value })
+    .eq("run_id", runId);
 }
 
 async function appendTypedMessage(message: string) {
-  typedLog.value.push('')
-  await nextTick()
+  typedLog.value.push("");
+  await nextTick();
 
-  const index = typedLog.value.length - 1
-  const line = logBox.value?.querySelector<HTMLElement>(`[data-log-index="${index}"]`)
+  const index = typedLog.value.length - 1;
+  const line = logBox.value?.querySelector<HTMLElement>(
+    `[data-log-index="${index}"]`,
+  );
 
   if (line) {
-    await typeText(line, message)
+    await typeText(line, message);
   }
 
-  typedLog.value[index] = message
-  await nextTick()
-  logBox.value?.scrollTo({ top: logBox.value.scrollHeight, behavior: 'smooth' })
+  typedLog.value[index] = message;
+  await nextTick();
+  logBox.value?.scrollTo({
+    top: logBox.value.scrollHeight,
+    behavior: "smooth",
+  });
 }
 
-function beginBattle(rawPlayer: Record<string, any>, rawEnemy: Record<string, any>) {
-  battleLost.value = false
+function beginBattle(
+  rawPlayer: Record<string, any>,
+  rawEnemy: Record<string, any>,
+) {
+  battleLost.value = false;
   startBattle(
-    normalizeBattlePokemon(rawPlayer, 'player'),
-    normalizeBattlePokemon(rawEnemy, 'enemy')
-  )
+    normalizeBattlePokemon(rawPlayer, "player"),
+    normalizeBattlePokemon(rawEnemy, "enemy"),
+  );
 }
 
 function resetTypedLog() {
-  typedLog.value = []
-  nextLogIndex.value = 0
-  logQueue.value = Promise.resolve()
+  typedLog.value = [];
+  nextLogIndex.value = 0;
+  logQueue.value = Promise.resolve();
 }
 
 function getRouteRunId() {
-  const rawRunId = route.query.run_id
-  return Array.isArray(rawRunId) ? rawRunId[0] : rawRunId
+  const rawRunId = route.query.run_id;
+  return Array.isArray(rawRunId) ? rawRunId[0] : rawRunId;
 }
 
 async function escapeRun() {
-  const runId = getRouteRunId()
+  const runId = getRouteRunId();
   if (runId) {
     await supabase
-      .from('runs')
-      .update({ status: 'completed', current_floor: displayFloor.value })
-      .eq('run_id', runId)
+      .from("runs")
+      .update({ status: "completed", current_floor: displayFloor.value })
+      .eq("run_id", runId);
   }
 
-  runStore.clearRun()
-  await router.push('/')
+  runStore.clearRun();
+  await router.push("/");
 }
 
 function wait(ms: number) {
-  return new Promise((resolve) => window.setTimeout(resolve, ms))
+  return new Promise((resolve) => window.setTimeout(resolve, ms));
 }
 
 function getHpPercent(pokemon: BattlePokemon | null) {
-  if (!pokemon?.max_hp) return 0
-  return Math.max(0, Math.min(100, Math.round((pokemon.current_hp / pokemon.max_hp) * 100)))
+  if (!pokemon?.max_hp) return 0;
+  return Math.max(
+    0,
+    Math.min(100, Math.round((pokemon.current_hp / pokemon.max_hp) * 100)),
+  );
 }
 
 function getExperienceForNextLevel(level: number) {
-  return Math.max(1, Math.floor(20 * Math.pow(1.1, Math.max(1, level))))
+  return Math.max(1, Math.floor(20 * Math.pow(1.1, Math.max(1, level))));
 }
 
 function calculateExperienceGain(playerLevel: number, enemyLevel: number) {
-  const base = Math.max(1, enemyLevel) * 22
-  const levelRatio = Math.max(1, enemyLevel) / Math.max(1, playerLevel)
-  return Math.max(1, Math.floor(base * Math.pow(levelRatio, 0.45)))
+  const base = Math.max(1, enemyLevel) * 22;
+  const levelRatio = Math.max(1, enemyLevel) / Math.max(1, playerLevel);
+  return Math.max(1, Math.floor(base * Math.pow(levelRatio, 0.45)));
 }
 
 function applyExperienceLevelUps(pokemon: Record<string, any>) {
-  let levelUps = 0
-  let nextLevelExperience = getExperienceForNextLevel(pokemon.level)
+  let levelUps = 0;
+  let nextLevelExperience = getExperienceForNextLevel(pokemon.level);
 
   while (pokemon.experience >= nextLevelExperience && pokemon.level < 100) {
-    pokemon.experience -= nextLevelExperience
-    pokemon.level += 1
-    levelUps += 1
-    applyScaledStatsForLevel(pokemon)
-    nextLevelExperience = getExperienceForNextLevel(pokemon.level)
+    pokemon.experience -= nextLevelExperience;
+    pokemon.level += 1;
+    levelUps += 1;
+    applyScaledStatsForLevel(pokemon);
+    nextLevelExperience = getExperienceForNextLevel(pokemon.level);
   }
 
-  return levelUps
+  return levelUps;
 }
 
 function applyScaledStatsForLevel(pokemon: Record<string, any>) {
-  pokemon.max_hp = Math.max(1, pokemon.base_hp + pokemon.level * 5)
-  pokemon.current_hp = pokemon.max_hp
-  pokemon.attack = Math.max(1, pokemon.base_attack + pokemon.level * 2)
-  pokemon.defense = Math.max(1, pokemon.base_defense + pokemon.level * 2)
-  pokemon.sp_atk = Math.max(1, (pokemon.base_sp_atk ?? pokemon.sp_atk ?? pokemon.base_attack) + pokemon.level * 2)
-  pokemon.sp_def = Math.max(1, (pokemon.base_sp_def ?? pokemon.sp_def ?? pokemon.base_defense) + pokemon.level * 2)
+  pokemon.max_hp = Math.max(1, pokemon.base_hp + pokemon.level * 5);
+  pokemon.current_hp = pokemon.max_hp;
+  pokemon.attack = Math.max(1, pokemon.base_attack + pokemon.level * 2);
+  pokemon.defense = Math.max(1, pokemon.base_defense + pokemon.level * 2);
+  pokemon.sp_atk = Math.max(
+    1,
+    (pokemon.base_sp_atk ?? pokemon.sp_atk ?? pokemon.base_attack) +
+      pokemon.level * 2,
+  );
+  pokemon.sp_def = Math.max(
+    1,
+    (pokemon.base_sp_def ?? pokemon.sp_def ?? pokemon.base_defense) +
+      pokemon.level * 2,
+  );
 }
 
-function normalizeBattlePokemon(rawPokemon: Record<string, any>, side: 'player' | 'enemy'): BattlePokemon {
-  const species = resolveSpecies(rawPokemon)
-  const level = Math.max(1, rawPokemon.level ?? 5)
-  const baseStats = resolveBaseStats(rawPokemon, species)
-  const scaledMaxHp = baseStats.hp + level * 5
-  const rawMaxHp = rawPokemon.max_hp ?? rawPokemon.current_hp ?? baseStats.hp
-  const rawCurrentHp = rawPokemon.current_hp ?? rawMaxHp
-  const currentHp = Math.max(1, Math.min(scaledMaxHp, Math.round((rawCurrentHp / Math.max(1, rawMaxHp)) * scaledMaxHp)))
-  const types = resolveTypes(rawPokemon, species)
-  const moves = resolveMoves(rawPokemon, species)
+function normalizeBattlePokemon(
+  rawPokemon: Record<string, any>,
+  side: "player" | "enemy",
+): BattlePokemon {
+  const species = resolveSpecies(rawPokemon);
+  const level = Math.max(1, rawPokemon.level ?? 5);
+  const baseStats = resolveBaseStats(rawPokemon, species);
+  const scaledMaxHp = baseStats.hp + level * 5;
+  const rawMaxHp = rawPokemon.max_hp ?? rawPokemon.current_hp ?? baseStats.hp;
+  const rawCurrentHp = rawPokemon.current_hp ?? rawMaxHp;
+  const currentHp = Math.max(
+    1,
+    Math.min(
+      scaledMaxHp,
+      Math.round((rawCurrentHp / Math.max(1, rawMaxHp)) * scaledMaxHp),
+    ),
+  );
+  const types = resolveTypes(rawPokemon, species);
+  const moves = resolveMoves(rawPokemon, species);
 
   return {
     id: rawPokemon.id,
     team_slot: rawPokemon.team_slot,
     status_condition: rawPokemon.status_condition,
     is_fainted: rawPokemon.is_fainted,
-    species_id: rawPokemon.species_id ?? rawPokemon.pokemon_species ?? species?.id,
+    species_id:
+      rawPokemon.species_id ?? rawPokemon.pokemon_species ?? species?.id,
     pokemon_species: rawPokemon.pokemon_species,
-    name: normalizeName(rawPokemon.name ?? species?.name ?? (side === 'player' ? 'Player' : 'Wild Pokemon')),
+    name: normalizeName(
+      rawPokemon.name ??
+        species?.name ??
+        (side === "player" ? "Player" : "Wild Pokemon"),
+    ),
     level,
     current_hp: currentHp,
     max_hp: scaledMaxHp,
@@ -803,90 +1022,136 @@ function normalizeBattlePokemon(rawPokemon: Record<string, any>, side: 'player' 
     types,
     sprite: rawPokemon.sprite ?? rawPokemon.sprite_url ?? species?.spriteUrl,
     moves,
-    ...(rawPokemon.experience !== undefined ? { experience: rawPokemon.experience } : {}),
-  }
+    ...(rawPokemon.experience !== undefined
+      ? { experience: rawPokemon.experience }
+      : {}),
+  };
 }
 
 function resolveSpecies(rawPokemon: Record<string, any>): Gen1Species | null {
-  const speciesId = rawPokemon.species_id ?? rawPokemon.pokemon_species ?? rawPokemon.api_id
-  const speciesById = Number.isFinite(Number(speciesId)) ? getSpeciesById(Number(speciesId)) : null
+  const speciesId =
+    rawPokemon.species_id ?? rawPokemon.pokemon_species ?? rawPokemon.api_id;
+  const speciesById = Number.isFinite(Number(speciesId))
+    ? getSpeciesById(Number(speciesId))
+    : null;
 
-  if (speciesById) return speciesById
+  if (speciesById) return speciesById;
 
-  const rawName = normalizeName(rawPokemon.name ?? '')
-  return Object.values(gen1Pokemon).find((species) => species.name.toLowerCase() === rawName.toLowerCase()) ?? null
+  const rawName = normalizeName(rawPokemon.name ?? "");
+  return (
+    Object.values(gen1Pokemon).find(
+      (species) => species.name.toLowerCase() === rawName.toLowerCase(),
+    ) ?? null
+  );
 }
 
-function resolveBaseStats(rawPokemon: Record<string, any>, species: Gen1Species | null) {
-  const rawStats = rawPokemon.base_stats ?? rawPokemon.baseStats ?? rawPokemon.species?.base_stats
+function resolveBaseStats(
+  rawPokemon: Record<string, any>,
+  species: Gen1Species | null,
+) {
+  const rawStats =
+    rawPokemon.base_stats ??
+    rawPokemon.baseStats ??
+    rawPokemon.species?.base_stats;
   return {
-    hp: rawStats?.hp ?? species?.baseStats.hp ?? rawPokemon.max_hp ?? rawPokemon.current_hp ?? 35,
-    attack: rawStats?.attack ?? species?.baseStats.attack ?? rawPokemon.attack ?? 35,
-    defense: rawStats?.defense ?? species?.baseStats.defense ?? rawPokemon.defense ?? 35,
-    sp_atk: rawStats?.sp_atk ?? rawStats?.spAtk ?? species?.baseStats.spAtk ?? rawPokemon.sp_atk ?? 35,
-    sp_def: rawStats?.sp_def ?? rawStats?.spDef ?? species?.baseStats.spDef ?? rawPokemon.sp_def ?? 35,
-    speed: rawStats?.speed ?? species?.baseStats.speed ?? rawPokemon.speed ?? 35,
-  }
+    hp:
+      rawStats?.hp ??
+      species?.baseStats.hp ??
+      rawPokemon.max_hp ??
+      rawPokemon.current_hp ??
+      35,
+    attack:
+      rawStats?.attack ?? species?.baseStats.attack ?? rawPokemon.attack ?? 35,
+    defense:
+      rawStats?.defense ??
+      species?.baseStats.defense ??
+      rawPokemon.defense ??
+      35,
+    sp_atk:
+      rawStats?.sp_atk ??
+      rawStats?.spAtk ??
+      species?.baseStats.spAtk ??
+      rawPokemon.sp_atk ??
+      35,
+    sp_def:
+      rawStats?.sp_def ??
+      rawStats?.spDef ??
+      species?.baseStats.spDef ??
+      rawPokemon.sp_def ??
+      35,
+    speed:
+      rawStats?.speed ?? species?.baseStats.speed ?? rawPokemon.speed ?? 35,
+  };
 }
 
-function resolveTypes(rawPokemon: Record<string, any>, species: Gen1Species | null): string[] {
+function resolveTypes(
+  rawPokemon: Record<string, any>,
+  species: Gen1Species | null,
+): string[] {
   const typeCandidates = [
     rawPokemon.type1,
     rawPokemon.type2,
     ...(Array.isArray(rawPokemon.types) ? rawPokemon.types : []),
     ...(species?.types ?? []),
-  ]
+  ];
 
   const types = typeCandidates
     .filter(Boolean)
     .map((type) => String(type).toLowerCase())
-    .filter((type, index, allTypes) => allTypes.indexOf(type) === index)
+    .filter((type, index, allTypes) => allTypes.indexOf(type) === index);
 
-  return types.length > 0 ? types.slice(0, 2) : ['normal']
+  return types.length > 0 ? types.slice(0, 2) : ["normal"];
 }
 
-function resolveMoves(rawPokemon: Record<string, any>, species: Gen1Species | null): BattleMove[] {
-  const rawMoves = Array.isArray(rawPokemon.moves) ? rawPokemon.moves : []
+function resolveMoves(
+  rawPokemon: Record<string, any>,
+  species: Gen1Species | null,
+): BattleMove[] {
+  const rawMoves = Array.isArray(rawPokemon.moves) ? rawPokemon.moves : [];
   const moves = rawMoves
     .map((move) => ({
       id: move.id,
-      name: move.name ?? 'Tackle',
-      type: String(move.type ?? 'normal').toLowerCase(),
+      name: move.name ?? "Tackle",
+      type: String(move.type ?? "normal").toLowerCase(),
       power: move.power ?? 40,
       accuracy: move.accuracy ?? 100,
       pp: move.pp,
     }))
-    .filter((move) => move.power > 0)
+    .filter((move) => move.power > 0);
 
-  if (moves.length > 0) return moves.slice(0, 4)
+  if (moves.length > 0) return moves.slice(0, 4);
 
-  const speciesMoves = species ? getWildMovesForSpecies(species.id).filter((move) => move.power > 0) : []
-  const typedFallback = getTypedFallbackMove(species)
+  const speciesMoves = species
+    ? getWildMovesForSpecies(species.id).filter((move) => move.power > 0)
+    : [];
+  const typedFallback = getTypedFallbackMove(species);
   const fallbackMoves = [
     ...speciesMoves,
     ...(typedFallback ? [typedFallback] : []),
     getMoveById(1),
     getMoveById(9),
-  ].filter(Boolean) as BattleMove[]
+  ].filter(Boolean) as BattleMove[];
 
   const uniqueMoves = fallbackMoves.filter((move, index, allMoves) => {
-    return allMoves.findIndex((candidate) => candidate.name === move.name) === index
-  })
+    return (
+      allMoves.findIndex((candidate) => candidate.name === move.name) === index
+    );
+  });
 
-  return uniqueMoves.slice(0, 4)
+  return uniqueMoves.slice(0, 4);
 }
 
 function getTypedFallbackMove(species: Gen1Species | null): BattleMove | null {
-  const primaryType = species?.types[0]
-  if (primaryType === 'fire') return getMoveById(5)
-  if (primaryType === 'water') return getMoveById(14)
-  if (primaryType === 'grass') return getMoveById(11)
-  if (primaryType === 'electric') return getMoveById(18)
-  return null
+  const primaryType = species?.types[0];
+  if (primaryType === "fire") return getMoveById(5);
+  if (primaryType === "water") return getMoveById(14);
+  if (primaryType === "grass") return getMoveById(11);
+  if (primaryType === "electric") return getMoveById(18);
+  return null;
 }
 
 function normalizeName(name: string) {
-  return name.replace(/^Wild\s+/i, '').trim()
+  return name.replace(/^Wild\s+/i, "").trim();
 }
 </script>
 
@@ -1012,6 +1277,29 @@ function normalizeName(name: string) {
   box-shadow: 3px 3px 0 #24190f;
 }
 
+.poke-btn {
+  font-family: "Fredoka One", cursive;
+  font-size: 22px;
+  padding: 12px 32px;
+  background: #2a1a0e;
+  color: #f0e6c8;
+  border: 3px solid #c0392b;
+  box-shadow: 0 4px 0 #8b1a11;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition:
+    transform 0.08s,
+    box-shadow 0.08s;
+}
+.poke-btn:hover {
+  background: #3a2510;
+  border-color: #e74c3c;
+}
+.poke-btn:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #8b1a11;
+}
+
 .reward-popup {
   position: absolute;
   top: 64px;
@@ -1030,7 +1318,9 @@ function normalizeName(name: string) {
 
 .reward-pop-enter-active,
 .reward-pop-leave-active {
-  transition: opacity 180ms ease, transform 180ms ease;
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease;
 }
 
 .reward-pop-enter-from,
@@ -1145,8 +1435,12 @@ function normalizeName(name: string) {
   height: clamp(46px, 5.2vw, 72px);
   border: 4px solid #b7950b;
   border-radius: 50%;
-  background:
-    radial-gradient(circle at 38% 42%, rgba(255, 238, 139, 0.95), rgba(244, 208, 63, 0.95) 58%, rgba(183, 149, 11, 0.95) 100%);
+  background: radial-gradient(
+    circle at 38% 42%,
+    rgba(255, 238, 139, 0.95),
+    rgba(244, 208, 63, 0.95) 58%,
+    rgba(183, 149, 11, 0.95) 100%
+  );
   box-shadow: 0 8px 0 rgba(0, 0, 0, 0.14);
 }
 
@@ -1172,7 +1466,10 @@ function normalizeName(name: string) {
 
 .bottom-action-bar {
   display: grid;
-  grid-template-columns: minmax(260px, 3fr) minmax(240px, 2.2fr) minmax(280px, 3fr);
+  grid-template-columns: minmax(260px, 3fr) minmax(240px, 2.2fr) minmax(
+      280px,
+      3fr
+    );
   min-height: 270px;
   flex: 0 0 270px;
   border-top: 4px solid #c0392b;
@@ -1223,7 +1520,10 @@ function normalizeName(name: string) {
   cursor: pointer;
   font: inherit;
   box-shadow: 0 4px 0 #8b1a11;
-  transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease,
+    background 120ms ease;
 }
 
 .command-btn:hover:not(:disabled),
@@ -1317,7 +1617,10 @@ function normalizeName(name: string) {
   cursor: pointer;
   font: inherit;
   box-shadow: 0 5px 0 #8b1a11;
-  transition: transform 120ms ease, box-shadow 120ms ease, filter 120ms ease;
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease,
+    filter 120ms ease;
 }
 
 .move-btn:hover:not(:disabled) {

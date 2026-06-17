@@ -8,10 +8,8 @@
     </div>
     <div class="grass">
       <div class="grass-lines"></div>
-      <div class="panel -bottom-48 -right-48">
+      <div class="panel">
         <button class="poke-btn" @click="goToStart">Start Run</button>
-        <button class="poke-btn" @click="null">Load Run</button>
-        <button class="poke-btn" @click="null"></button>
       </div>
     </div>
 
