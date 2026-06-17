@@ -10,7 +10,12 @@
         <div class="floor-display">Floor {{ runStore.currentFloor }}</div>
         <div class="money-display">💰 {{ runStore.money }}</div>
         <div class="team-status">
-          <span v-for="(p, idx) in runStore.team" :key="idx" class="team-indicator" :class="p.status_condition">
+          <span
+            v-for="(p, idx) in runStore.team"
+            :key="idx"
+            class="team-indicator"
+            :class="p.status_condition"
+          >
             {{ p.name[0] }}
           </span>
         </div>
@@ -31,9 +36,14 @@
         </div>
 
         <!-- Encounter view (pre-battle) -->
-        <div v-else-if="wildEncounter && !runStore.inBattle" class="encounter-view">
+        <div
+          v-else-if="wildEncounter && !runStore.inBattle"
+          class="encounter-view"
+        >
           <div class="encounter-scene">
-            <div class="encounter-title">Wild {{ wildEncounter.name }} appeared!</div>
+            <div class="encounter-title">
+              Wild {{ wildEncounter.name }} appeared!
+            </div>
 
             <div class="encounter-pokemon">
               <img :src="wildEncounter.sprite" :alt="wildEncounter.name" />
@@ -47,7 +57,11 @@
             </div>
 
             <div class="action-buttons">
-              <button class="action-btn primary" @click="startBattle" :disabled="!activePlayerPokemon">
+              <button
+                class="action-btn primary"
+                @click="startBattle"
+                :disabled="!activePlayerPokemon"
+              >
                 Fight
               </button>
               <button class="action-btn danger" @click="fleeEncounter">
@@ -69,12 +83,14 @@
           </div>
 
           <div class="action-buttons">
-            <button class="action-btn primary" @click="generateEncounter" :disabled="!runStore.hasActivePokemon">
+            <button
+              class="action-btn primary"
+              @click="generateEncounter"
+              :disabled="!runStore.hasActivePokemon"
+            >
               Start Battle
             </button>
-            <button class="action-btn danger" @click="endRun">
-              End Run
-            </button>
+            <button class="action-btn danger" @click="endRun">End Run</button>
           </div>
 
           <div class="team-side">
@@ -94,217 +110,230 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
-import { useRunStore } from '../stores/runStore'
-import { checkEvolution, evolveToSpecies, evolveEevee } from '../composables/useEvolution'
-import { calculateXpGain, applyXp, updatePokemonStats } from '../composables/useXP'
-import BattleView from '../components/BattleView.vue'
-import TeamView from '../components/TeamView.vue'
-import EeveeEvolutionChooser from '../components/EeveeEvolutionChooser.vue'
+import { ref, computed, onMounted } from "vue";
+import { useRouter, useRoute } from "vue-router";
+import { useRunStore } from "../stores/runStore";
+import {
+  checkEvolution,
+  evolveToSpecies,
+  evolveEevee,
+} from "../composables/useEvolution";
+import {
+  calculateXpGain,
+  applyXp,
+  updatePokemonStats,
+} from "../composables/useXP";
+import BattleView from "../components/BattleView.vue";
+import TeamView from "../components/TeamView.vue";
+import EeveeEvolutionChooser from "../components/EeveeEvolutionChooser.vue";
 
-const router = useRouter()
-const route = useRoute()
-const supabase = useSupabaseClient()
-const runStore = useRunStore()
+const router = useRouter();
+const route = useRoute();
+const supabase = useSupabaseClient();
+const runStore = useRunStore();
 
-const wildEncounter = ref<any | null>(null)
-const hasLoadedEncounter = ref(false)
-const showEeveeChoice = ref(false)
-const pendingEvolutionPokemon = ref<any | null>(null)
-const selectedTeamIndex = ref(0)
+const wildEncounter = ref<any | null>(null);
+const hasLoadedEncounter = ref(false);
+const showEeveeChoice = ref(false);
+const pendingEvolutionPokemon = ref<any | null>(null);
+const selectedTeamIndex = ref(0);
 
 const activePlayerPokemon = computed(() => {
-  const active = runStore.activeTeamPokemon
-  return active.length > 0 ? active[0] : null
-})
+  const active = runStore.activeTeamPokemon;
+  return active.length > 0 ? active[0] : null;
+});
 
 onMounted(async () => {
   try {
-    const runId = route.query.run_id as string
+    const runId = route.query.run_id as string;
     if (!runId) {
-      router.push('/')
-      return
+      router.push("/");
+      return;
     }
 
     // Load run and team
     const { data: runData } = await supabase
-      .from('runs')
-      .select('*')
-      .eq('id', runId)
-      .single()
+      .from("runs")
+      .select("*")
+      .eq("id", runId)
+      .single();
 
     if (!runData) {
-      router.push('/')
-      return
+      router.push("/");
+      return;
     }
 
-    runStore.setRun(runData)
+    runStore.setRun(runData);
 
     // Load team
     const { data: teamData } = await supabase
-      .from('player_pokemon')
-      .select('*')
-      .eq('run_id', runId)
-      .order('team_slot', { ascending: true })
+      .from("player_pokemon")
+      .select("*")
+      .eq("run_id", runId)
+      .order("team_slot", { ascending: true });
 
     if (teamData) {
-      runStore.setTeam(teamData as any)
+      runStore.setTeam(teamData as any);
     }
 
     if (runStore.hasActivePokemon) {
-      runStore.setInBattle(true)
-      hasLoadedEncounter.value = true
+      runStore.setInBattle(true);
+      hasLoadedEncounter.value = true;
     }
   } catch (err) {
-    console.error('Failed to load run:', err)
-    router.push('/')
+    console.error("Failed to load run:", err);
+    router.push("/");
   }
-})
+});
 
 async function generateEncounter() {
-  if (!runStore.hasActivePokemon) return
-  runStore.setInBattle(true)
-  hasLoadedEncounter.value = true
+  if (!runStore.hasActivePokemon) return;
+  runStore.setInBattle(true);
+  hasLoadedEncounter.value = true;
 }
 
 function startBattle() {
-  if (!activePlayerPokemon.value) return
-  runStore.setInBattle(true)
+  if (!activePlayerPokemon.value) return;
+  runStore.setInBattle(true);
 }
 
 function fleeEncounter() {
-  wildEncounter.value = null
-  hasLoadedEncounter.value = false
+  wildEncounter.value = null;
+  hasLoadedEncounter.value = false;
 }
 
 async function handleBattleEnd(result: any) {
   if (!result?.continued) {
-    runStore.setInBattle(false)
+    runStore.setInBattle(false);
   }
 
-  const resultPlayer = getResultTeamPokemon(result?.player)
+  const resultPlayer = getResultTeamPokemon(result?.player);
 
-  if (result?.result === 'win' && resultPlayer) {
+  if (result?.result === "win" && resultPlayer) {
     const xpGain = calculateXpGain(
       resultPlayer.level,
-      result.enemy?.level ?? 1
-    )
+      result.enemy?.level ?? 1,
+    );
 
     // Update player Pokémon with XP
-    applyXp(resultPlayer, xpGain)
-    updatePokemonStats(resultPlayer, resultPlayer.level)
+    applyXp(resultPlayer, xpGain);
 
     // Persist to database
     try {
       await supabase
-        .from('player_pokemon')
+        .from("player_pokemon")
         .update({
           level: resultPlayer.level,
           experience: resultPlayer.experience,
           max_hp: resultPlayer.max_hp,
           current_hp: resultPlayer.current_hp,
         })
-        .eq('id', resultPlayer.id)
+        .eq("id", resultPlayer.id);
     } catch (err) {
-      console.error('Failed to persist Pokémon state:', err)
+      console.error("Failed to persist Pokémon state:", err);
     }
 
     // Check for evolution
-    const evoCheck = checkEvolution(resultPlayer, resultPlayer.species_id)
+    const evoCheck = checkEvolution(resultPlayer, resultPlayer.species_id);
     if (evoCheck.canEvolve) {
       if (evoCheck.eeveeChoice) {
-        pendingEvolutionPokemon.value = resultPlayer
-        showEeveeChoice.value = true
+        pendingEvolutionPokemon.value = resultPlayer;
+        showEeveeChoice.value = true;
       } else if (evoCheck.evolvesInto) {
-        evolveToSpecies(resultPlayer, evoCheck.evolvesInto)
+        evolveToSpecies(resultPlayer, evoCheck.evolvesInto);
         await supabase
-          .from('player_pokemon')
+          .from("player_pokemon")
           .update({ species_id: evoCheck.evolvesInto })
-          .eq('id', resultPlayer.id)
+          .eq("id", resultPlayer.id);
       }
     }
 
     if (!result?.continued) {
-      wildEncounter.value = null
-      hasLoadedEncounter.value = false
+      wildEncounter.value = null;
+      hasLoadedEncounter.value = false;
     }
-  } else if (result?.result === 'loss') {
+  } else if (result?.result === "loss") {
     // Mark Pokémon as fainted
     if (resultPlayer) {
-      resultPlayer.status_condition = 'fainted'
-      resultPlayer.current_hp = 0
+      resultPlayer.status_condition = "fainted";
+      resultPlayer.current_hp = 0;
 
       try {
         await supabase
-          .from('player_pokemon')
+          .from("player_pokemon")
           .update({
-            status_condition: 'fainted',
+            status_condition: "fainted",
             current_hp: 0,
           })
-          .eq('id', resultPlayer.id)
+          .eq("id", resultPlayer.id);
       } catch (err) {
-        console.error('Failed to mark Pokémon as fainted:', err)
+        console.error("Failed to mark Pokémon as fainted:", err);
       }
     }
 
     // Check if team is all fainted
     if (!runStore.hasActivePokemon) {
-      endRun()
+      endRun();
     } else if (!result?.continued) {
-      wildEncounter.value = null
-      hasLoadedEncounter.value = false
+      wildEncounter.value = null;
+      hasLoadedEncounter.value = false;
     }
   }
 }
 
 function getResultTeamPokemon(resultPlayer: any) {
-  if (!resultPlayer) return activePlayerPokemon.value
-  return runStore.team.find((member) => member.id === resultPlayer.id) ?? activePlayerPokemon.value
+  if (!resultPlayer) return activePlayerPokemon.value;
+  return (
+    runStore.team.find((member) => member.id === resultPlayer.id) ??
+    activePlayerPokemon.value
+  );
 }
 
-async function handleEeveeEvolution(evolutionName: 'vaporeon' | 'jolteon' | 'flareon') {
-  const pokemonToEvolve = pendingEvolutionPokemon.value ?? activePlayerPokemon.value
+async function handleEeveeEvolution(
+  evolutionName: "vaporeon" | "jolteon" | "flareon",
+) {
+  const pokemonToEvolve =
+    pendingEvolutionPokemon.value ?? activePlayerPokemon.value;
 
   if (pokemonToEvolve) {
-    evolveEevee(pokemonToEvolve, evolutionName)
+    evolveEevee(pokemonToEvolve, evolutionName);
 
     // Get evolved species ID
-    const evolutionIds = { vaporeon: 134, jolteon: 135, flareon: 136 }
-    const newSpeciesId = evolutionIds[evolutionName]
+    const evolutionIds = { vaporeon: 134, jolteon: 135, flareon: 136 };
+    const newSpeciesId = evolutionIds[evolutionName];
 
     try {
       await supabase
-        .from('player_pokemon')
+        .from("player_pokemon")
         .update({ species_id: newSpeciesId })
-        .eq('id', pokemonToEvolve.id)
+        .eq("id", pokemonToEvolve.id);
     } catch (err) {
-      console.error('Failed to evolve Eevee:', err)
+      console.error("Failed to evolve Eevee:", err);
     }
   }
 
-  showEeveeChoice.value = false
-  pendingEvolutionPokemon.value = null
+  showEeveeChoice.value = false;
+  pendingEvolutionPokemon.value = null;
 }
 
 function selectTeamPokemon(index: number) {
-  selectedTeamIndex.value = index
+  selectedTeamIndex.value = index;
 }
 
 async function endRun() {
   if (runStore.activeRun) {
     try {
       await supabase
-        .from('runs')
-        .update({ status: 'completed', current_floor: runStore.currentFloor })
-        .eq('id', runStore.activeRun.id)
+        .from("runs")
+        .update({ status: "completed", current_floor: runStore.currentFloor })
+        .eq("id", runStore.activeRun.id);
     } catch (err) {
-      console.error('Failed to end run:', err)
+      console.error("Failed to end run:", err);
     }
   }
 
-  runStore.clearRun()
-  router.push('/')
+  runStore.clearRun();
+  router.push("/");
 }
 </script>
 
@@ -315,7 +344,7 @@ async function endRun() {
   display: flex;
   flex-direction: column;
   background: #3a9e4f;
-  font-family: 'Fredoka One', cursive;
+  font-family: "Fredoka One", cursive;
   color: #f0e6c8;
 }
 
